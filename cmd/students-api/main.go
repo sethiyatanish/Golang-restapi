@@ -12,6 +12,7 @@ import (
 
 	config "github.com/sethiyatanish/student-api/internal"
 	"github.com/sethiyatanish/student-api/internal/http/handlers/student"
+	"github.com/sethiyatanish/student-api/internal/storage/sqlite"
 )
 
 func main() {
@@ -20,6 +21,14 @@ func main() {
 	cfg := config.MustLoad()
 
 	//  database setup
+
+	_, err :=sqlite.New(cfg)
+	if err!= nil{
+		log.Fatal(err)
+	}
+
+	slog.Info("storage initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	//  setup router
 	router := http.NewServeMux()
 

@@ -15,6 +15,7 @@ type Config struct {
 	// env-default:"production"
 	Env         string `yaml:"env" env:"ENV" env-required:"true" `
 	StoragePath string `yaml:"storage_path" env-required:"true"`
+	Database_Url string `yaml:"database_url" env-required:"true"`
 	HTTPServer  `yaml:"http_server"`
 }
 
