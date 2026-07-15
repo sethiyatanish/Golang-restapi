@@ -10,13 +10,13 @@ import (
 ) 
 
 type Response struct {
-	Status string
-	Error string
+	Status string `json:"status"`
+	Error  string `json:"error,omitempty"`
 }
 
 
 const (
-	StatusOK = "OK"
+	StatusOK    = "OK"
 	StatusError = "Error"
 )
 

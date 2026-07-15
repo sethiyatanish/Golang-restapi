@@ -9,14 +9,13 @@ import (
 )
 
 type HTTPServer struct {
-	Addr string `yaml:"address" env-required: "true"`
+	Addr string `yaml:"address" env-required:"true"`
 }
 type Config struct {
-	// env-default:"production"
-	Env         string `yaml:"env" env:"ENV" env-required:"true" `
-	StoragePath string `yaml:"storage_path" env-required:"true"`
-	Database_Url string `yaml:"database_url" env-required:"true"`
-	HTTPServer  `yaml:"http_server"`
+	Env          string `yaml:"env" env:"ENV" env-required:"true"`
+	StoragePath  string `yaml:"storage_path"`
+	Database_Url string `yaml:"database_url"`
+	HTTPServer   `yaml:"http_server"`
 }
 
 func MustLoad() *Config {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"log/slog"
 	"net/http"
@@ -16,14 +17,12 @@ import (
 )
 
 func main() {
-
 	//  load config
 	cfg := config.MustLoad()
 
 	//  database setup
-
-	_, err :=sqlite.New(cfg)
-	if err!= nil{
+	storage, err := sqlite.New(cfg)
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -32,7 +31,11 @@ func main() {
 	//  setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
+	router.HandleFunc("GET /api/students", student.GetList(storage))
+	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))
+	router.HandleFunc("PUT /api/students/{id}", student.Update(storage))
+	router.HandleFunc("DELETE /api/students/{id}", student.Delete(storage))
 
 	//  setup server
 	server := http.Server{
@@ -40,16 +43,15 @@ func main() {
 		Handler: router,
 	}
 
-	slog.Info("Server started %s", slog.String("address", cfg.Addr))
+	slog.Info("Server started", slog.String("address", cfg.Addr))
 
 	done := make(chan os.Signal, 1)
-
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGALRM)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		err := server.ListenAndServe()
-		if err != nil {
-			log.Fatal("Failed to start server")
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
 
@@ -65,5 +67,4 @@ func main() {
 	}
 
 	slog.Info("Server shutdown successfully")
-
 }
